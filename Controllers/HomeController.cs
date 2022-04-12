@@ -1,4 +1,4 @@
-﻿using Itransition.Models;
+using Itransition.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,15 +10,12 @@ using Microsoft.Data.SqlClient;
 using Itransition.Data;
 using Microsoft.AspNetCore.Identity;
 using Itransition.Areas.Identity.ApplicationIdentityUser;
+using System.Linq;
 
 namespace Itransition.Controllers
 {   [Authorize]
     public class HomeController : Controller
     {
-        SqlCommand command = new SqlCommand();
-        SqlDataReader dataReader;
-        SqlConnection connection = new SqlConnection();
-
         List<People> peoples = new List<People>();
 
         private readonly ILogger<HomeController> _logger;
@@ -32,7 +29,6 @@ namespace Itransition.Controllers
             _context = context;
             _logger = logger;
             _signInManager = signInManager;
-            connection.ConnectionString = "Server=DESKTOP-IRIGQQM\\SQLEXPRESS;Database=Itransition;Trusted_Connection=True;MultipleActiveResultSets=true";
         }
 
         public IActionResult Index()
@@ -45,28 +41,16 @@ namespace Itransition.Controllers
         {
             if (peoples.Count > 0)
                 peoples.Clear();
-            try
-            {
-                connection.Open();
-                command.Connection = connection;
-                command.CommandText = "SELECT TOP 1000 [Id],[Email],[LastSeenOnSite],[Name],[RegistrationDate],[Status] FROM [Itransition].[dbo].[AspNetUsers]";
-                dataReader = command.ExecuteReader();
-                while(dataReader.Read())
+                foreach ( var user in _context.Users.ToList())
                 {
-                    peoples.Add(new() { Id = dataReader["Id"].ToString() 
-                        ,Email = dataReader["Email"].ToString()
-                        ,Name = dataReader["Name"].ToString()
-                        ,Status = dataReader["Status"].ToString()
-                        ,RegistrationDate = Convert.ToDateTime(dataReader["RegistrationDate"])
-                        ,LastSeenOnSite = Convert.ToDateTime(dataReader["LastSeenOnSite"])
+                    peoples.Add(new() { Id = user.Id 
+                        ,Email = user.Email
+                        ,Name = user.Name
+                        ,Status = user.Status
+                        ,RegistrationDate = user.RegistrationDate
+                        ,LastSeenOnSite = user.LastSeenOnSite
                     });
                 }
-                connection.Close();
-            }
-            catch (Exception)
-            {
-                throw new Exception("DataFetch Exception");
-            }
         }
 
         public async Task<ActionResult> DeleteSelectedUsers(string[] usersIds)
