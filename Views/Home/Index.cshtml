@@ -1,0 +1,84 @@
+﻿<html>
+<body>
+    @{
+        ViewData["Title"] = "Home Page";
+        string[] TableHeaders = new string[] { "chkbox", "Id", "Email", "Last Seen On Site", "Name", "Registration Date", "Status" };
+    }
+    <h1>Users</h1>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .btn {
+            background-color: DodgerBlue;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+
+    <div class="table">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script language="JavaScript">
+            $(document).ready(function () {
+                $("#chkboxheader").click(function () {
+                    if ($(this).is(":checked")) {
+                        $(".checkbox").prop("checked", true)
+                    } else {
+                        $(".checkbox").prop("checked", false)
+                    }
+                })
+            })
+        </script>
+        @using (Html.BeginForm("DeleteSelectedUsers", "Home", FormMethod.Post))
+        {
+            <input type="submit" value="Delete Selected User(s)" />
+            <button asp-action="BlockSelectedUsers" class="btn"><i class="fa fa-trash"> Block </i></button>
+            <button asp-action="UnBlockSelectedUsers" class="btn"><i class="fa fa-close"></i> Unblock</button>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        @{
+                            foreach (var head in TableHeaders)
+                            {
+                                if (head == "chkbox")
+                                {
+                                    <th>
+                                        <input type="checkbox" class="checkbox" id="chkboxheader" />
+                                    </th>
+                                }
+                                else
+                                {
+                                    <th>
+                                        @head
+                                    </th>
+                                }
+                            }
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        if (Model != null)
+                        {
+                            foreach (var Data in Model)
+                            {
+                                <tr>
+                                    <td><input type="checkbox" class="checkbox" name="usersIds" value="@Data.Id"></td>
+                                    <td>@Data.Id</td>
+                                    <td>@Data.Email</td>
+                                    <td>@Data.LastSeenOnSite</td>
+                                    <td>@Data.Name</td>
+                                    <td>@Data.RegistrationDate</td>
+                                    <td>@Data.Status</td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</body>
+</html>
